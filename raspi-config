@@ -304,8 +304,8 @@ do_update() {
 }
 
 do_finish() {
-  ssh-keygen -t rsa &&
-  if [ ! -e /home/pi/.config/crunchbang/super ]
+  if [ ! -e /home/pi/.config/crunchbang/super ]; then
+    ssh-keygen -t rsa &&
     echo " " > /home/pi/.bash_history	&&
     touch /home/pi/.config/crunchbang/super &&
   else

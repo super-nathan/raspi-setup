@@ -307,7 +307,7 @@ do_finish() {
   if [ ! -e /home/pi/.config/crunchbang/super ]; then
     ssh-keygen -t rsa &&
     echo " " > /home/pi/.bash_history	&&
-    touch /home/pi/.config/crunchbang/super &&
+    touch /home/pi/.config/crunchbang/super
   fi
   if [ -e /etc/profile.d/raspi-config.sh ]; then
     rm -f /etc/profile.d/raspi-config.sh

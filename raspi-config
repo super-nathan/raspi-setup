@@ -1,5 +1,8 @@
 #!/bin/sh
-# Part of raspi-config http://github.com/asb/raspi-config
+# Part of raspi-config http://github.com/super-nathan/raspi-config
+#
+# This is a fork of the original raspiconfig by Alex Bradburry,
+# Foufd at http://github.com/asb/raspi-config
 #
 # See LICENSE file for copyright and license details
 
@@ -10,7 +13,8 @@ do_info() {
 This tool provides a straight-forward way of doing initial 
 configuration of the Raspberry Pi. Although it can be run 
 at any time, some of the options may have difficulties if 
-you have heavily customised your installation.\
+you have heavily customised your installation. If this is 
+your first boot, we recomend you examine each option carefully.\
 " 20 70 1
 }
 
@@ -305,7 +309,7 @@ do_update() {
 
 do_finish() {
   if [ ! -e /home/pi/.config/crunchbang/super ]; then
-    ssh-keygen -t rsa &&
+    ssh-keygen -t rsa &&  
     echo " " > /home/pi/.bash_history	&&
     touch /home/pi/.config/crunchbang/super
   fi
@@ -367,7 +371,7 @@ fi
 # Interactive use loop
 #
 while true; do
-  FUN=$(whiptail --menu "Raspi-config" 20 80 12 --cancel-button Finish --ok-button Select \
+  FUN=$(whiptail --menu "Raspi-config for CrunchBang Linux" 20 80 12 --cancel-button Finish --ok-button Select \
     "info" "Information about this tool" \
     "expand_rootfs" "Expand root partition to fill SD card" \
     "overscan" "Change overscan" \

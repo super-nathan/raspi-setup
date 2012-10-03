@@ -124,9 +124,24 @@ do_overscan() {
   fi
 }
 
+do_change_username() {
+  whiptail --msgbox "\
+  WARNING, If you want to change your username, make sure that you also change the password. DO NOT use this to change your username after your first boot.\
+  " 20 70 1
+  read -p "Enter a new username (all lowercase) : " NEWNAME && 
+  usermod -l $NEWNAME pi &&
+  mv /home/pi /home/$NEWNAME &&
+  chown -R $NEWNAME /home/$NEWNAME &&
+  chown -R $NEWNAME /home/$NEWNAME/** &&
+  usermod -d /home/$NEWNAME $NEWNAME 
+}
+
 do_change_pass() {
-  whiptail --msgbox "You will now be asked to enter a new password for the pi user" 20 60 1
-  passwd pi &&
+  whiptail --msgbox "\
+  You will now be asked to enter a new password. DO NOT use this to change your password afer the first boot.\
+  " 20 60 1
+  PASSNAME=$(ls --ignore=lost+found /home) &&
+  passwd $PASSNAME &&
   whiptail --msgbox "Password changed successfully" 20 60 1
 }
 
@@ -288,8 +303,9 @@ do_boot_behaviour() {
   whiptail --yesno "Should we boot straight to desktop?" 20 60 2
   RET=$?
   if [ $RET -eq 0 ]; then # yes
-    update-rc.d lightdm enable 2
-    sed /etc/lightdm/lightdm.conf -i -e "s/^#autologin-user=.*/autologin-user=pi/"
+    update-rc.d lightdm enable 2 
+    BOOTNAME=$(ls --ignore=lost+found /home)  &&
+    sed /etc/lightdm/lightdm.conf -i -e "s/#autologin-user=/autologin-user=$BOOTNAME/" &&
     ASK_TO_REBOOT=1
   elif [ $RET -eq 1 ]; then # no
     update-rc.d lightdm disable 2
@@ -308,10 +324,13 @@ do_update() {
 }
 
 do_finish() {
-  if [ ! -e /home/pi/.config/crunchbang/super ]; then
-    ssh-keygen -t rsa &&  
-    echo " " > /home/pi/.bash_history	&&
-    touch /home/pi/.config/crunchbang/super
+  whiptail --msgbox "\
+  Just hit <enter> for defaults values here.\
+  " 20 70 1
+  if [ ! -e /home/*/.config/crunchbang/super ]; then
+    ssh-keygen  -q -t rsa &&  # added this to make a previously booted, but "new to you" images safe
+    echo " " > /home/*/.bash_history	&&   # added this to make it "new to you"
+    touch /home/*/.config/crunchbang/super
   fi
   if [ -e /etc/profile.d/raspi-config.sh ]; then
     rm -f /etc/profile.d/raspi-config.sh
@@ -371,12 +390,13 @@ fi
 # Interactive use loop
 #
 while true; do
-  FUN=$(whiptail --menu "Raspi-config for CrunchBang Linux" 20 80 12 --cancel-button Finish --ok-button Select \
+  FUN=$(whiptail --menu "Raspi-config for CrunchBang Linux" 22 80 14 --cancel-button Finish --ok-button Select \
     "info" "Information about this tool" \
     "expand_rootfs" "Expand root partition to fill SD card" \
     "overscan" "Change overscan" \
     "configure_keyboard" "Set keyboard layout" \
-    "change_pass" "Change password for 'pi' user" \
+    "change_username" "Change Username" \
+    "change_pass" "Change password for user" \
     "change_locale" "Set locale" \
     "change_timezone" "Set timezone" \
     "memory_split" "Change memory split" \

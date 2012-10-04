@@ -12,8 +12,8 @@ do_info() {
   whiptail --msgbox "\
 This tool provides a straight-forward way of doing initial 
 configuration of the Raspberry Pi. Although it can be run 
-at any time, some of the options may have difficulties if 
-you have heavily customised your installation. If this is 
+at any time, some of the options may have difficulties or will 
+fail if you have heavily customised your installation. If this is 
 your first boot, we recomend you examine each option carefully.\
 " 20 70 1
 }
@@ -126,7 +126,7 @@ do_overscan() {
 
 do_change_username() {
   whiptail --msgbox "\
-  WARNING, If you want to change your username, make sure that you also change the password. DO NOT use this to change your username after your first boot.\
+  WARNING, If you want to change your username, make sure that you also change the password. DO NOT use this to change your username after your first boot. If you need to change your username then, consult the forums at www.pibanglinux.org\
   " 20 70 1
   read -p "Enter a new username (all lowercase) : " NEWNAME && 
   usermod -l $NEWNAME pi &&
@@ -138,7 +138,7 @@ do_change_username() {
 
 do_change_pass() {
   whiptail --msgbox "\
-  You will now be asked to enter a new password. DO NOT use this to change your password afer the first boot.\
+  You will now be asked to enter a new password. DO NOT use this to change your password afer the first boot.If you need to change your password then, consult the forums at www.pibanglinux.org\
   " 20 60 1
   PASSNAME=$(ls --ignore=lost+found /home) &&
   passwd $PASSNAME &&
@@ -198,8 +198,9 @@ do_overclock() {
   whiptail --msgbox "\
 Be aware that overclocking may reduce the lifetime of your
 Raspberry Pi. If overclocking at a certain level causes
-system instability, try a more modest overclock. See
-http://elinux.org/RPi_Overclocking for more information.\
+system instability, try a more modest overclock. You CAN 
+use this utility to change the overclock after your first boot.
+See http://elinux.org/RPi_Overclocking for more information.\
 " 20 70 1
   OVERCLOCK=$(whiptail --menu "Chose overclock preset" 20 60 10 \
     "None" "700MHz ARM, 250MHz core, 400MHz SDRAM, 0 overvolt" \
@@ -300,7 +301,7 @@ do_ssh() {
 }
 
 do_boot_behaviour() {
-  whiptail --yesno "Should we boot straight to desktop?" 20 60 2
+  whiptail --yesno "Should we boot straight to desktop? (recommended) " 20 60 2
   RET=$?
   if [ $RET -eq 0 ]; then # yes
     update-rc.d lightdm enable 2 
@@ -390,7 +391,7 @@ fi
 # Interactive use loop
 #
 while true; do
-  FUN=$(whiptail --menu "Raspi-config for CrunchBang Linux" 22 80 14 --cancel-button Finish --ok-button Select \
+  FUN=$(whiptail --menu "Raspi-config for PiBang Linux" 22 80 14 --cancel-button Finish --ok-button Select \
     "info" "Information about this tool" \
     "expand_rootfs" "Expand root partition to fill SD card" \
     "overscan" "Change overscan" \

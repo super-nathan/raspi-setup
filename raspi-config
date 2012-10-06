@@ -329,8 +329,9 @@ do_finish() {
   Just hit <enter> for defaults values here.\
   " 20 70 1
   if [ ! -e /home/*/.config/crunchbang/super ]; then
+    BASHNAME=$(ls --ignore=lost+found /home)  &&
     ssh-keygen  -q -t rsa &&  # added this to make a previously booted, but "new to you" images safe
-    echo " " > /home/*/.bash_history	&&   # added this to make it "new to you"
+    echo " " > /home/$BASHNAME/.bash_history	&&   # added this to make it "new to you"
     touch /home/*/.config/crunchbang/super
   fi
   if [ -e /etc/profile.d/raspi-config.sh ]; then

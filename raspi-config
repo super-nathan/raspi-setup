@@ -332,7 +332,7 @@ do_finish() {
     BASHNAME=$(ls --ignore=lost+found /home)  &&
     ssh-keygen  -q -t rsa &&  # added this to make a previously booted, but "new to you" images safe
     echo " " > /home/$BASHNAME/.bash_history	&&   # added this to make it "new to you"
-    touch /home/*/.config/crunchbang/super
+    touch /home/$BASHNAME/.config/crunchbang/super
   fi
   if [ -e /etc/profile.d/raspi-config.sh ]; then
     rm -f /etc/profile.d/raspi-config.sh

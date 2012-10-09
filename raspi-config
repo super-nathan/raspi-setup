@@ -316,13 +316,6 @@ do_boot_behaviour() {
   fi
 }
 
-do_update() {
-  apt-get update &&
-  apt-get install raspi-config &&
-  printf "Sleeping 5 seconds before reloading raspi-config\n" &&
-  sleep 5 &&
-  exec raspi-config
-}
 
 do_finish() {
   whiptail --msgbox "\
@@ -405,7 +398,6 @@ while true; do
     "overclock" "Configure overclocking" \
     "ssh" "Enable or disable ssh server" \
     "boot_behaviour" "Start desktop on boot?" \
-    "update" "Try to upgrade raspi-config" \
     3>&1 1>&2 2>&3)
   RET=$?
   if [ $RET -eq 1 ]; then

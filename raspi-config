@@ -133,7 +133,8 @@ do_change_username() {
   mv /home/pi /home/$NEWNAME &&
   chown -R $NEWNAME /home/$NEWNAME &&
   chown -R $NEWNAME /home/$NEWNAME/** &&
-  usermod -d /home/$NEWNAME $NEWNAME 
+  usermod -d /home/$NEWNAME $NEWNAME &&
+  echo " " > /home/$NEWNAME/.bash_history
 }
 
 do_change_pass() {
@@ -144,6 +145,18 @@ do_change_pass() {
   passwd $PASSNAME &&
   whiptail --msgbox "Password changed successfully" 20 60 1
 }
+
+do_change_hostname() {
+  OLDHOST=$(cat /etc/hostname) &&
+  whiptail --msgbox "\
+  The Hostname is your computer's name on the network. Right now it is set to "$OLDHOST"\
+  " 20 60 1
+  read -p "Enter a new hostname: " HOSTNAME && 
+  sed /etc/hostname -i -e "s/$OLDHOST/$HOSTNAME/" &&
+  sed /etc/hosts -i -e "s/$OLDHOST/$HOSTNAME/" 
+}
+
+
 
 do_configure_keyboard() {
   dpkg-reconfigure keyboard-configuration &&
@@ -291,6 +304,7 @@ do_ssh() {
   if [ $RET -eq 0 ]; then
     update-rc.d ssh enable &&
     invoke-rc.d ssh start &&
+    ssh-keygen  -q -t rsa
     whiptail --msgbox "SSH server enabled" 20 60 1
   elif [ $RET -eq 1 ]; then
     update-rc.d ssh disable &&
@@ -316,24 +330,7 @@ do_boot_behaviour() {
   fi
 }
 
-do_update() {
-  apt-get update &&
-  apt-get install raspi-config &&
-  printf "Sleeping 5 seconds before reloading raspi-config\n" &&
-  sleep 5 &&
-  exec raspi-config
-}
-
 do_finish() {
-  whiptail --msgbox "\
-  Just hit <enter> for defaults values here.\
-  " 20 70 1
-  if [ ! -e /home/*/.config/crunchbang/super ]; then
-    BASHNAME=$(ls --ignore=lost+found /home)  &&
-    ssh-keygen  -q -t rsa &&  # added this to make a previously booted, but "new to you" images safe
-    echo " " > /home/$BASHNAME/.bash_history	&&   # added this to make it "new to you"
-    touch /home/*/.config/crunchbang/super
-  fi
   if [ -e /etc/profile.d/raspi-config.sh ]; then
     rm -f /etc/profile.d/raspi-config.sh
     sed -i /etc/inittab \
@@ -344,7 +341,6 @@ do_finish() {
   if [ $ASK_TO_REBOOT -eq 1 ]; then
     whiptail --yesno "Would you like to reboot now?" 20 60 2
     if [ $? -eq 0 ]; then # yes
-      sync
       reboot
     fi
   fi
@@ -392,20 +388,20 @@ fi
 # Interactive use loop
 #
 while true; do
-  FUN=$(whiptail --menu "Raspi-config for PiBang Linux" 22 80 14 --cancel-button Finish --ok-button Select \
+  FUN=$(whiptail --menu "Raspi-config for PiBang Linux" 22 80 12 --cancel-button Finish --ok-button Select \
     "info" "Information about this tool" \
     "expand_rootfs" "Expand root partition to fill SD card" \
     "overscan" "Change overscan" \
     "configure_keyboard" "Set keyboard layout" \
     "change_username" "Change Username" \
     "change_pass" "Change password for user" \
+    "change_hostname" "Change your computer's hostname" \
     "change_locale" "Set locale" \
     "change_timezone" "Set timezone" \
     "memory_split" "Change memory split" \
     "overclock" "Configure overclocking" \
     "ssh" "Enable or disable ssh server" \
     "boot_behaviour" "Start desktop on boot?" \
-    "update" "Try to upgrade raspi-config" \
     3>&1 1>&2 2>&3)
   RET=$?
   if [ $RET -eq 1 ]; then

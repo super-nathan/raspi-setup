@@ -1,5 +1,5 @@
 #!/bin/sh
-# Part of raspi-config http://github.com/super-nathan/raspi-config
+# Part of raspi-setup http://github.com/super-nathan/raspi-setup
 #
 # See LICENSE file for copyright and license details
 

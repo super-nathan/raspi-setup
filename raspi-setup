@@ -339,13 +339,9 @@ do_finish() {
       -e "/#\s*RPICFG_TO_DISABLE/d"
     telinit q
   fi
-  if [ $ASK_TO_REBOOT -eq 1 ]; then
-    whiptail --yesno "Would you like to reboot now?" 20 60 2
-    if [ $? -eq 0 ]; then # yes
-      sync
-      reboot
-    fi
-  fi
+   whiptail --msgbox "You will now be rebooted in 15 seconds." 20 60 2
+    sync &&
+    (sleep 15 && sudo reboot)
   exit 0
 }
 
@@ -391,7 +387,7 @@ fi
 # Interactive use loop
 #
 while true; do
-  FUN=$(whiptail --menu "Raspi-config for PiBang Linux" 22 80 14 --cancel-button Finish --ok-button Select \
+  FUN=$(whiptail --menu "Raspi-Setup for PiBang Linux" 22 80 14 --cancel-button Finish --ok-button Select \
     "info" "Information about this tool" \
     "expand_rootfs" "Expand root partition to fill SD card" \
     "overscan" "Change overscan" \

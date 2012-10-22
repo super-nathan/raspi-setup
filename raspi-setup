@@ -124,6 +124,7 @@ do_overscan() {
   fi
 }
 
+
 do_change_username() {
   whiptail --msgbox "\
   WARNING, If you want to change your username, make sure that you also change the password. DO NOT use this to change your username after your first boot. If you need to change your username then, consult the forums at www.pibanglinux.org\

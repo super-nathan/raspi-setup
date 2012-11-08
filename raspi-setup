@@ -244,13 +244,8 @@ do_overclock() {
   whiptail --msgbox "\
 Be aware that overclocking may reduce the lifetime of your
 Raspberry Pi. If overclocking at a certain level causes
-<<<<<<< HEAD:raspi-setup
-system instability, try a more modest overclock. You CAN 
-use this utility to change the overclock after your first boot.
-=======
 system instability, try a more modest overclock. Hold down
 shift during boot to temporarily disable overclock.
->>>>>>> 9199bf25ea721b99901f41fec73c26eaee559c04:raspi-config
 See http://elinux.org/RPi_Overclocking for more information.\
 " 20 70 1
   OVERCLOCK=$(whiptail --menu "Chose overclock preset" 20 60 10 \

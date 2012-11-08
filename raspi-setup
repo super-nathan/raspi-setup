@@ -6,6 +6,7 @@
 #
 # See LICENSE file for copyright and license details
 
+
 ASK_TO_REBOOT=0
 
 do_info() {

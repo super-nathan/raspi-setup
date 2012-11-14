@@ -1,14 +1,11 @@
-Source: raspi-config
+Source: raspi-setup
 Section: unknown
 Priority: extra
-Maintainer: Alex Bradbury <asb@asbradbury.org>
+Maintainer: "Super" Nathan Weber <supernathansunshine@gmail.com>
 Build-Depends: debhelper (>= 8.0.0)
-Standards-Version: 3.9.2
-Homepage: https://github.com/asb/raspi-config
-#Vcs-Git: git://git.debian.org/collab-maint/raspi-config.git
-#Vcs-Browser: http://git.debian.org/?p=collab-maint/raspi-config.git;a=summary
+Homepage: https://github.com/super-nathan/raspi-setup
 
-Package: raspi-config
+Package: raspi-setup
 Architecture: all
 Depends: ${misc:Depends}, whiptail, parted, lua5.1, triggerhappy
 Description: Simple configuration for Raspberry Pi

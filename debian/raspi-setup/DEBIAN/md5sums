@@ -1,2 +1,4 @@
-44ae5a7abdf8616b4d3d8d08d3e32d83  usr/bin/raspi-setup
-28e010c42b83eecf74d4d1182d326f90  usr/share/doc/raspi-setup/changelog.gz
+a8146e7b8e94a2f2cb55f7b3bdf62a61  usr/bin/raspi-setup
+1bacb22aefc2da78a02c62e630421979  usr/share/doc/raspi-setup/changelog.gz
+b23e25d2e17308665a7b9e938bbcd5c6  usr/share/doc/raspi-setup/copyright
+1bfb5aa655cf9e856654a923e7b71e8f  usr/share/man/man1/raspi-setup.1.gz

@@ -147,8 +147,8 @@ do_change_username() {
   read -p "Enter a new username (all lowercase) : " NEWNAME && 
   usermod -l $NEWNAME pi &&
   mv /home/pi /home/$NEWNAME &&
-  chown -R $NEWNAME /home/$NEWNAME &&
-  chown -R $NEWNAME /home/$NEWNAME/** &&
+  chown -R $NEWNAME:$NEWNAME /home/$NEWNAME &&
+  chown -R $NEWNAME:$NEWNAME /home/$NEWNAME/* &&
   usermod -d /home/$NEWNAME $NEWNAME &&
   echo " " > /home/$NEWNAME/.bash_history
 }

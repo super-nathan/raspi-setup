@@ -145,13 +145,13 @@ do_change_username() {
   WARNING, If you want to change your username, make sure that you also change the password. DO NOT use this to change your username after your first boot. If you need to change your username then, consult the forums at www.pibanglinux.org\
   " 20 70 1
   read -p "Enter a new username (all lowercase) : " NEWNAME && 
-  usermod -l $NEWNAME pi &&
-  mv /home/pi /home/$NEWNAME &&
-  chown -R $NEWNAME /home/$NEWNAME &&
-  chown -R $NEWNAME /home/$NEWNAME/** &&
-  chown -R $NEWNAME /home/$NEWNAME/.** &&
-  usermod -d /home/$NEWNAME $NEWNAME &&
-  sed /sudoers -i -e "s/pi/$NEWNAME/" &&
+  usermod -l $NEWNAME pi 
+  mv /home/pi /home/$NEWNAME 
+  chown -R $NEWNAME /home/$NEWNAME 
+  chown -R $NEWNAME /home/$NEWNAME/** 
+  chown -R $NEWNAME /home/$NEWNAME/.** 
+  usermod -d /home/$NEWNAME $NEWNAME 
+  sed /sudoers -i -e "s/pi/$NEWNAME/" 
 }
 
 do_change_pass() {

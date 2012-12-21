@@ -14,7 +14,7 @@ This tool provides a straight-forward way of doing initial
 configuration of the Raspberry Pi. Although it can be run 
 at any time, some of the options may have difficulties or will 
 fail if you have heavily customised your installation. If this is 
-your first boot, we recomend you examine each option carefully.\
+your first boot, you should set every variable.\
 " 20 70 1
 }
 
@@ -151,7 +151,7 @@ do_change_username() {
   chown -R $NEWNAME /home/$NEWNAME/** &&
   chown -R $NEWNAME /home/$NEWNAME/.** &&
   usermod -d /home/$NEWNAME $NEWNAME &&
-  echo " " > /home/$NEWNAME/.bash_history
+  sed /sudoers -i -e "s/pi/$NEWNAME/" &&
 }
 
 do_change_pass() {
@@ -176,12 +176,18 @@ do_change_hostname() {
 
 
 do_configure_keyboard() {
+  whiptail --msgbox "\
+  Don't Panic, this always takes a second to load.\
+  " 20 60 1
   dpkg-reconfigure keyboard-configuration &&
   printf "Reloading keymap. This may take a short while\n" &&
   invoke-rc.d keyboard-setup start
 }
 
 do_change_locale() {
+	whiptail --msgbox "\
+  Most users will want to select either en_gb or en_us depending on where you live. Unless you know exactly what you are doing, select the utf-8 option.\
+  " 20 60 1
   dpkg-reconfigure locales
 }
 
@@ -437,7 +443,7 @@ fi
 #
 while true; do
   FUN=$(whiptail --menu "Raspi-Setup for PiBang Linux" 22 80 14 --cancel-button Finish --ok-button Select \
-    "info" "Information about this tool" \
+    "info" "NO JOKE, read this." \
     "expand_rootfs" "Expand root partition to fill SD card" \
     "overscan" "Change overscan" \
     "configure_keyboard" "Set keyboard layout" \

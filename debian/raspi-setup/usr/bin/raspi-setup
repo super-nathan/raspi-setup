@@ -140,23 +140,21 @@ do_overscan() {
 }
 
 
-do_change_username() {
+do_create_user() {
   whiptail --msgbox "\
-  WARNING, If you want to change your username, make sure that you also change the password. DO NOT use this to change your username after your first boot. If you need to change your username then, consult the forums at www.pibanglinux.org\
+  WARNING, Right now, your sytem only has a root account. What would you like your new user's name to be? I you have questions please consult the forums at www.pibanglinux.org\
   " 20 70 1
   read -p "Enter a new username (all lowercase) : " NEWNAME && 
-  usermod -l $NEWNAME pi 
-  mv /home/pi /home/$NEWNAME 
-  chown -R $NEWNAME /home/$NEWNAME 
-  chown -R $NEWNAME /home/$NEWNAME/** 
-  chown -R $NEWNAME /home/$NEWNAME/.*
-  usermod -d /home/$NEWNAME $NEWNAME 
-  sed /sudoers -i -e "s/pi/$NEWNAME/" 
+  useradd -G cdrom,floppy,sudo,audio,dip,video,plugdev,fuse,bluetooth,netdev -U -m -s /bin/zsh $NEWNAME
+  echo "
+  $NEWNAME ALL=(ALL) NOPASSWD: ALL
+  " >> /etc/sudoers
+
 }
 
 do_change_pass() {
   whiptail --msgbox "\
-  You will now be asked to enter a new password. DO NOT use this to change your password afer the first boot.If you need to change your password then, consult the forums at www.pibanglinux.org\
+  You will now be asked to enter a new password. \
   " 20 60 1
   PASSNAME=$(ls --ignore=lost+found /home) &&
   passwd $PASSNAME &&
@@ -347,7 +345,6 @@ do_ssh() {
   if [ $RET -eq 0 ]; then
     update-rc.d ssh enable &&
     invoke-rc.d ssh start &&
-    ssh-keygen  -q -t rsa
     whiptail --msgbox "SSH server enabled" 20 60 1
   elif [ $RET -eq 1 ]; then
     update-rc.d ssh disable &&
@@ -447,7 +444,7 @@ while true; do
     "expand_rootfs" "Expand root partition to fill SD card" \
     "overscan" "Change overscan" \
     "configure_keyboard" "Set keyboard layout" \
-    "change_username" "Change Username" \
+    "create_user" "Create a user account" \
     "change_pass" "Change password for user" \
     "change_hostname" "Change your computer's hostname" \
     "change_locale" "Set locale" \

@@ -1,8 +1,8 @@
 Package: raspi-setup
-Version: 0.0.11
+Version: 0.1.1
 Architecture: all
 Maintainer: "Super" Nathan Weber <supernathansunshine@gmail.com>
-Installed-Size: 43
+Installed-Size: 42
 Depends: whiptail, parted, lua5.1, triggerhappy
 Section: unknown
 Priority: extra

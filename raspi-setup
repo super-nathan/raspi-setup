@@ -345,7 +345,6 @@ do_ssh() {
   if [ $RET -eq 0 ]; then
     update-rc.d ssh enable &&
     invoke-rc.d ssh start &&
-    ssh-keygen  -q -t rsa
     whiptail --msgbox "SSH server enabled" 20 60 1
   elif [ $RET -eq 1 ]; then
     update-rc.d ssh disable &&

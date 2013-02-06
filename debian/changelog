@@ -1,3 +1,9 @@
+raspi-setup (0.1.2) unstable; urgency=low
+
+  * Trying a new option to change passwords
+
+ -- "Super" Nathan Weber <supernathansunshine@gmail.com>  Mon, 04 Feb 2013 09:52:12 +0900
+
 raspi-setup (0.1.1) unstable; urgency=low
 
   * Remove SSH keygen, uneeded

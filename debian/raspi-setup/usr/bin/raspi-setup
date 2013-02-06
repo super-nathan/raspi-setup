@@ -144,7 +144,7 @@ do_create_user() {
   whiptail --msgbox "\
   WARNING, Right now, your sytem only has a root account. What would you like your new user's name to be? I you have questions please consult the forums at www.pibanglinux.org\
   " 20 70 1
-  read -p "Enter a new username (all lowercase) : " NEWNAME && 
+  read -p "Enter a new username (all lowercase) : " NEWNAME 
   useradd -G cdrom,floppy,sudo,audio,dip,video,plugdev,fuse,bluetooth,netdev -U -m -s /bin/zsh $NEWNAME
   echo "
   $NEWNAME ALL=(ALL) NOPASSWD: ALL
@@ -156,8 +156,8 @@ do_change_pass() {
   whiptail --msgbox "\
   You will now be asked to enter a new password. \
   " 20 60 1
-  PASSNAME=$(ls --ignore=lost+found /home) &&
-  passwd $PASSNAME &&
+  PASSNAME=$NEWNAME
+  passwd $PASSNAME 
   whiptail --msgbox "Password changed successfully" 20 60 1
 }
 
@@ -258,7 +258,7 @@ See http://elinux.org/RPi_Overclocking for more information.\
     "Modest" "800MHz ARM, 250MHz core, 400MHz SDRAM, 0 overvolt" \
     "Medium" "900MHz ARM, 250MHz core, 450MHz SDRAM, 2 overvolt" \
     "High" "950MHz ARM, 250MHz core, 450MHz SDRAM, 6 overvolt" \
-    "Turbo" "1000MHz ARM, 500MHz core, 600MHz SDRAM, 6 overvolt" \
+    "Turbo" "1000MHz ARM, 500MHz core, 500MHz SDRAM, 6 overvolt" \
     3>&1 1>&2 2>&3)
   if [ $? -eq 0 ]; then
     case "$OVERCLOCK" in

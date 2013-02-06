@@ -22,5 +22,5 @@ if [ $(id -u) -ne 0 ]; then
   printf "\nNOTICE: the software on this Raspberry Pi has not been fully configured. Please run 'sudo raspi-setup'\n\n"
 else
   raspi-setup
-  exec login -f pi
+  exec login -f root
 fi

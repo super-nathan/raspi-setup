@@ -152,7 +152,7 @@ do_create_user() {
 
 }
 
-do_change_pass() {
+do_set_pass() {
   whiptail --msgbox "\
   You will now be asked to enter a new password. \
   " 20 60 1
@@ -255,9 +255,9 @@ See http://elinux.org/RPi_Overclocking for more information.\
 " 20 70 1
   OVERCLOCK=$(whiptail --menu "Chose overclock preset" 20 60 10 \
     "None" "700MHz ARM, 250MHz core, 400MHz SDRAM, 0 overvolt" \
-    "Modest" "800MHz ARM, 250MHz core, 400MHz SDRAM, 0 overvolt" \
-    "Medium" "900MHz ARM, 250MHz core, 450MHz SDRAM, 2 overvolt" \
-    "High" "950MHz ARM, 250MHz core, 450MHz SDRAM, 6 overvolt" \
+    "Modest" "800MHz ARM, 300MHz core, 400MHz SDRAM, 0 overvolt" \
+    "Medium" "900MHz ARM, 333MHz core, 450MHz SDRAM, 2 overvolt" \
+    "High" "950MHz ARM, 450MHz core, 450MHz SDRAM, 6 overvolt" \
     "Turbo" "1000MHz ARM, 500MHz core, 500MHz SDRAM, 6 overvolt" \
     3>&1 1>&2 2>&3)
   if [ $? -eq 0 ]; then
@@ -266,19 +266,19 @@ See http://elinux.org/RPi_Overclocking for more information.\
         set_overclock None 700 250 400 0
         ;;
       Modest)
-        set_overclock Modest 800 250 400 0
+        set_overclock Modest 800 300 400 0
         ;;
       Medium)
-        set_overclock Medium 900 250 450 2
+        set_overclock Medium 900 333 450 2
         ;;
       High)
-        set_overclock High 950 250 450 6
+        set_overclock High 950 450 450 6
         ;;
       Turbo)
         whiptail --msgbox "Warning: some people have reported SD card corruption with this level of overclock." \
           20 70 1
         [ $? -ne 0 ] && return 1
-        set_overclock Turbo 1000 500 600 6
+        set_overclock Turbo 1000 500 500 6
         ;;
       *)
         whiptail --msgbox "Programmer error, unrecognised overclock preset" 20 60 2
@@ -445,7 +445,7 @@ while true; do
     "overscan" "Change overscan" \
     "configure_keyboard" "Set keyboard layout" \
     "create_user" "Create a user account" \
-    "change_pass" "Change password for user" \
+    "set_pass" "Change password for user" \
     "change_hostname" "Change your computer's hostname" \
     "change_locale" "Set locale" \
     "change_timezone" "Set timezone" \

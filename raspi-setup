@@ -455,7 +455,7 @@ while true; do
     "expand_rootfs" "Expand root partition to fill SD card" \
     "overscan" "Change overscan" \
     "configure_keyboard" "Set keyboard layout" \
-    "set_root_pass" "set an administrative password "
+    "set_root_pass" "set an administrative password " \
     "create_user" "Create a user account" \
     "set_pass" "Change password for user" \
     "change_hostname" "Change your computer's hostname" \

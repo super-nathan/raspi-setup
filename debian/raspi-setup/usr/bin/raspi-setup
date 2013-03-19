@@ -128,6 +128,9 @@ set_overscan() {
 }
 
 do_overscan() {
+    whiptail --msgbox "\
+  Disabling the overscan is only used with the composite output and is not needed for HDMI.\
+  " 20 60 1
   whiptail --yesno "What would you like to do with overscan" 20 60 2 \
     --yes-button Disable --no-button Enable 
   RET=$?
@@ -139,22 +142,30 @@ do_overscan() {
   fi
 }
 
+do_set_root_pass() {
+  whiptail --msgbox "\
+  You will now be asked to enter a new ROOT password. The ROOT user is the all seeing allmighty \"Oz\" of your system. This is an adminstrative account, and is to only be used for administrative duties.\
+  " 20 60 1
+  passwd root
+  usermod -G root,sudo -s /usr/bin/zsh root
+  whiptail --msgbox "Password changed successfully" 20 60 1
+}
+
 
 do_create_user() {
   whiptail --msgbox "\
-  WARNING, Right now, your sytem only has a root account. What would you like your new user's name to be? I you have questions please consult the forums at www.pibanglinux.org\
+  WARNING, Right now, your sytem only has a root account. You need to create a user. This new user is what you will use to log in 99.9% of the time. What would you like your new user's name to be? If you have questions please consult the forums at www.pibanglinux.org\
   " 20 70 1
   read -p "Enter a new username (all lowercase) : " NEWNAME 
   useradd -G cdrom,floppy,sudo,audio,dip,video,plugdev,fuse,bluetooth,netdev -U -m -s /bin/zsh $NEWNAME
   echo "
   $NEWNAME ALL=(ALL) NOPASSWD: ALL
   " >> /etc/sudoers
-
 }
 
 do_set_pass() {
   whiptail --msgbox "\
-  You will now be asked to enter a new password. \
+  You will now be asked to enter a new password for the user named $NEWNAME. \
   " 20 60 1
   PASSNAME=$NEWNAME
   passwd $PASSNAME 
@@ -439,11 +450,12 @@ fi
 # Interactive use loop
 #
 while true; do
-  FUN=$(whiptail --menu "Raspi-Setup for PiBang Linux" 22 80 14 --cancel-button Finish --ok-button Select \
+  FUN=$(whiptail --menu "Raspi-Setup for PiBang Linux" 22 80 15 --cancel-button Finish --ok-button Select \
     "info" "NO JOKE, read this." \
     "expand_rootfs" "Expand root partition to fill SD card" \
     "overscan" "Change overscan" \
     "configure_keyboard" "Set keyboard layout" \
+    "set_root_pass" "set an administrative password "
     "create_user" "Create a user account" \
     "set_pass" "Change password for user" \
     "change_hostname" "Change your computer's hostname" \

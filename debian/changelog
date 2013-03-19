@@ -1,3 +1,15 @@
+raspi-setup (0.2.3) unstable; urgency=low
+
+  * Securing the system, adding info.
+
+ -- "Super" Nathan Weber <supernathansunshine@gmail.com>  Tue, 19 Mar 2013 09:54:43 +0900
+
+raspi-setup (0.2.2) unstable; urgency=low
+
+  * Lots of new stuff
+
+ -- "Super" Nathan Weber <supernathansunshine@gmail.com>  Tue, 12 Mar 2013 11:36:59 +0900
+
 raspi-setup (0.2.1) unstable; urgency=low
 
   * change pasword

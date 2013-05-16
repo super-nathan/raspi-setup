@@ -460,6 +460,8 @@ do_finish() {
       -e "/#\s*RPICFG_TO_DISABLE/d"
     telinit q
   fi
+  if [ -e /usr/bin/systemd-analyze ]; then
+    systemctl raspi-setup disable
   if [ $ASK_TO_REBOOT -eq 1 ]; then
     whiptail --yesno "Would you like to reboot now?" 20 60 2
     if [ $? -eq 0 ]; then # yes
@@ -516,7 +518,7 @@ fi
 # Interactive use loop
 #
 while true; do
-  FUN=$(whiptail --menu "Raspi-Setup for PiBang Linux" 22 80 15 --cancel-button Finish --ok-button Select \
+  FUN=$(whiptail --menu "Raspi-Setup for PiBang Linux" 24 80 16 --cancel-button Finish --ok-button Select \
     "info" "NO JOKE, read this." \
     "expand_rootfs" "Expand root partition to fill SD card" \
     "overscan" "Change overscan" \

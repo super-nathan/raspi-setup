@@ -1,3 +1,9 @@
+raspi-setup (0.2.7) unstable; urgency=low
+
+  * systemd transitions
+
+ -- "Super" Nathan Weber <supernathansunshine@gmail.com>  Thu, 16 May 2013 21:10:17 +0900
+
 raspi-setup (0.2.6) unstable; urgency=low
 
   * resized

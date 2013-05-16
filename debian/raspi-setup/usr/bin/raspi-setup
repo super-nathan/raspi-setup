@@ -7,6 +7,8 @@
 # See LICENSE file for copyright and license details
 
 ASK_TO_REBOOT=0
+INTERACTIVE=True
+
 
 do_info() {
   whiptail --msgbox "\
@@ -330,6 +332,7 @@ case "$1" in
     else
       SYS_CPUFREQ_GOVERNOR=/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
       [ -e $SYS_CPUFREQ_GOVERNOR ] && echo "ondemand" > $SYS_CPUFREQ_GOVERNOR
+      echo 70 > /sys/devices/system/cpu/cpufreq/ondemand/up_threshold
       printf " No. Switching to ondemand scaling governor"
       log_end_msg 0
     fi
@@ -343,6 +346,31 @@ EOF
   chmod +x /etc/init.d/switch_cpu_governor &&
   update-rc.d switch_cpu_governor defaults &&
   whiptail --msgbox "Set overclock to preset '$1'" 20 60 2
+}
+
+
+do_rastrack() {
+  whiptail --msgbox "\
+Rastrack (http://rastrack.co.uk) is a website run by Ryan Walmsley
+for tracking where people are using Raspberry Pis around the world.
+If you have an internet connection, you can add yourself directly
+using this tool. This is just a bit of fun, not any sort of official
+registration.\
+" 20 70 1
+  if [ $? -ne 0 ]; then
+    return 0;
+  fi
+  UNAME=$(whiptail --inputbox "Username / Nickname For Rastrack Addition" 20 70 3>&1 1>&2 2>&3)
+  if [ $? -ne 0 ]; then
+    return 1;
+  fi
+  EMAIL=$(whiptail --inputbox "Email Address For Rastrack Addition" 20 70 3>&1 1>&2 2>&3)
+  if [ $? -ne 0 ]; then
+    return 1;
+  fi
+  curl --data "name=$UNAME&email=$EMAIL" http://rastrack.co.uk/api.php
+  printf "Hit enter to continue\n"
+  read TMP
 }
 
 do_ssh() {
@@ -385,6 +413,44 @@ do_boot_behaviour() {
     return 1
   fi 
 }
+
+
+# $1 is 0 to disable camera, 1 to enable it
+set_camera() {
+  # Stop if /boot is not a mountpoint
+  if ! mountpoint -q /boot; then
+    return 1
+  fi
+
+  [ -e /boot/config.txt ] || touch /boot/config.txt
+
+  if [ "$1" -eq 0 ]; then # disable camera
+    set_config_var start_file start.elf /boot/config.txt
+    set_config_var fixup_file fixup.dat /boot/config.txt
+  else # enable camera
+    set_config_var start_file start_x.elf /boot/config.txt
+    set_config_var fixup_file fixup_x.dat /boot/config.txt
+    set_config_var gpu_mem 128 /boot/config.txt
+  fi
+}
+
+do_camera() {
+  if [ ! -e /boot/start_x.elf ]; then
+    whiptail --msgbox "Your firmware appears to be out of date (no start_x.elf). Please update" 20 60 2
+    return 1
+  fi
+  whiptail --yesno "Enable support for Raspberry Pi camera?" 20 60 2 \
+    --yes-button Disable --no-button Enable
+  RET=$?
+  if [ $RET -eq 0 ] || [ $RET -eq 1 ]; then
+    ASK_TO_REBOOT=1
+    set_camera $RET;
+  else
+    return 1
+  fi
+}
+
+
 
 do_finish() {
   if [ -e /etc/profile.d/raspi-config.sh ]; then
@@ -463,6 +529,8 @@ while true; do
     "change_timezone" "Set timezone" \
     "memory_split" "Change memory split" \
     "overclock" "Configure overclocking" \
+    "camera" "Enable/Disable camera addon support" \
+    "rastrack" "Add this Pi to the Raspberry Pi Map - Rastrack" \
     "ssh" "Enable or disable ssh server" \
     "boot_behaviour" "Start desktop on boot?" \
     3>&1 1>&2 2>&3)

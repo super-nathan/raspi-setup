@@ -1,3 +1,9 @@
+raspi-setup (0.2.6) unstable; urgency=low
+
+  * resized
+
+ -- "Super" Nathan Weber <supernathansunshine@gmail.com>  Thu, 16 May 2013 19:17:36 +0900
+
 raspi-setup (0.2.5) unstable; urgency=low
 
   * improve overcloking

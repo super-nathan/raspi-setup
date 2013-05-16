@@ -516,7 +516,7 @@ fi
 # Interactive use loop
 #
 while true; do
-  FUN=$(whiptail --menu "Raspi-Setup for PiBang Linux" 22 80 15 --cancel-button Finish --ok-button Select \
+  FUN=$(whiptail --menu "Raspi-Setup for PiBang Linux" 24 80 16 --cancel-button Finish --ok-button Select \
     "info" "NO JOKE, read this." \
     "expand_rootfs" "Expand root partition to fill SD card" \
     "overscan" "Change overscan" \

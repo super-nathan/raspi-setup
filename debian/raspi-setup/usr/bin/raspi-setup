@@ -461,7 +461,10 @@ do_finish() {
     telinit q
   fi
   if [ -e /usr/bin/systemd-analyze ]; then
-    systemctl raspi-setup disable
+    cd /etc/systemd/system/getty.target.wants/
+    rm -f /etc/systemd/system/getty.target.wants/*
+    sudo ln -s -T /lib/systemd/system/getty@.service getty@1.service
+  fi
   if [ $ASK_TO_REBOOT -eq 1 ]; then
     whiptail --yesno "Would you like to reboot now?" 20 60 2
     if [ $? -eq 0 ]; then # yes

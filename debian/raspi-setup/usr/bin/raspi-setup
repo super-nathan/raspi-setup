@@ -16,7 +16,8 @@ This tool provides a straight-forward way of doing initial
 configuration of the Raspberry Pi. Although it can be run 
 at any time, some of the options may have difficulties or will 
 fail if you have heavily customised your installation. If this is 
-your first boot, you should set every variable.\
+your first boot, you MUST set a root password, crete a user,
+and set a password for your new user.\
 " 20 70 1
 }
 
@@ -526,13 +527,13 @@ fi
 #
 while true; do
   FUN=$(whiptail --menu "Raspi-Setup for PiBang Linux" 24 80 16 --cancel-button Finish --ok-button Select \
-    "info" "NO JOKE, read this." \
+    "info" "About this utility." \
     "expand_rootfs" "Expand root partition to fill SD card" \
-    "overscan" "Change overscan" \
+    "overscan" "Change overscan (RCA-out video only)" \
     "configure_keyboard" "Set keyboard layout" \
-    "set_root_pass" "set an administrative password " \
-    "create_user" "Create a user account" \
-    "set_pass" "Change password for user" \
+    "set_root_pass" "Set an administrative password " \
+    "create_user" "Create a new user account" \
+    "set_pass" "Create a password for the new user" \
     "change_hostname" "Change your computer's hostname" \
     "change_locale" "Set locale" \
     "change_timezone" "Set timezone" \

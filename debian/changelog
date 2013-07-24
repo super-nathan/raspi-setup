@@ -1,3 +1,9 @@
+raspi-setup (0.2.14) unstable; urgency=low
+
+  * refining new changes
+
+ -- "Super" Nathan Weber <supernathansunshine@gmail.com>  Wed, 24 Jul 2013 19:28:21 +0900
+
 raspi-setup (0.2.13) unstable; urgency=low
 
   * making things pretty

@@ -1,10 +1,6 @@
-#!/bin/sh
-# Part of raspi-config http://github.com/super-nathan/raspi-config
-#
-# This is a fork of the original raspiconfig by Alex Bradburry,
-# Foufd at http://github.com/asb/raspi-config
-#
-# See LICENSE file for copyright and license details
+#!/bin/bash
+
+
 
 ASK_TO_REBOOT=0
 INTERACTIVE=True
@@ -147,7 +143,7 @@ do_overscan() {
 
 do_set_root_pass() {
   whiptail --msgbox "\
-  You will now be asked to enter a new ROOT password. The ROOT user is the all seeing allmighty \"Oz\" of your system. This is an adminstrative account, and is to only be used for administrative duties.\
+  You will now be asked to enter a new ROOT password. The ROOT user is the all seeing allmighty \"Oz\" of your system. This is an adminstrative account, and is to only be used for administrative duties. NEW, you can now make as many users as you like.\
   " 20 60 1
   passwd root
   usermod -G root,sudo -s /usr/bin/zsh root
@@ -156,24 +152,38 @@ do_set_root_pass() {
 
 
 do_create_user() {
+  /usr/bin/ls -1 --ignore=lost+found  /home >> /tmp/newusers
   whiptail --msgbox "\
   WARNING, Right now, your sytem only has a root account. You need to create a user. This new user is what you will use to log in 99.9% of the time. What would you like your new user's name to be? If you have questions please consult the forums at www.pibanglinux.org\
   " 20 70 1
-  read -p "Enter a new username (all lowercase) : " NEWNAME 
-  useradd -G cdrom,floppy,sudo,audio,dip,video,plugdev,fuse,bluetooth,netdev -U -m -s /bin/zsh $NEWNAME
-  echo "
-  $NEWNAME ALL=(ALL) NOPASSWD: ALL
+  whiptail --yesno "Would you like the new user to have SUDO rights?" 20 60 2 
+  SUSER=$?
+  read -p "Enter a new username (all lowercase) : " NEWNAME   
+  if [ $SUSER -eq 0 ]; then
+    useradd -G cdrom,floppy,sudo,audio,dip,video,plugdev,fuse,bluetooth,netdev -U -m -s /bin/zsh $NEWNAME
+    echo "$NEWNAME" >> /tmp/newusers
+    echo "
+$NEWNAME ALL=(ALL) NOPASSWD: ALL
   " >> /etc/sudoers
-}
-
-do_set_pass() {
-  whiptail --msgbox "\
+    whiptail --msgbox "\
   You will now be asked to enter a new password for the user named $NEWNAME. \
   " 20 60 1
-  PASSNAME=$NEWNAME
-  passwd $PASSNAME 
+  passwd $NEWNAME
   whiptail --msgbox "Password changed successfully" 20 60 1
+  elif [ $SUSER -eq 1 ]; then
+    useradd -G cdrom,floppy,audio,dip,video,plugdev,fuse,bluetooth,netdev -U -m -s /bin/zsh $NEWNAME
+    echo "$NEWNAME" >> /tmp/newusers
+    whiptail --msgbox "\
+  You will now be asked to enter a new password for the user named $NEWNAME. \
+  " 20 60 1
+  passwd $NEWNAME 
+  whiptail --msgbox "Password changed successfully" 20 60 1
+  else
+    return $SUSER
+  fi
 }
+
+
 
 do_change_hostname() {
   OLDHOST=$(cat /etc/hostname) &&
@@ -196,6 +206,7 @@ do_configure_keyboard() {
   invoke-rc.d keyboard-setup start
 }
 
+
 do_change_locale() {
 	whiptail --msgbox "\
   Most users will want to select either en_gb or en_us depending on where you live. Unless you know exactly what you are doing, select the utf-8 option.\
@@ -203,9 +214,11 @@ do_change_locale() {
   dpkg-reconfigure locales
 }
 
+
 do_change_timezone() {
   dpkg-reconfigure tzdata
 }
+
 
 do_memory_split() {
   if [ -e /boot/start_cd.elf ]; then
@@ -395,24 +408,32 @@ do_ssh() {
 }
 
 do_boot_behaviour() {
-  if [ -e /etc/init.d/lightdm ]; then
-    whiptail --yesno "Should we boot straight to desktop? (recommended) " 20 60 2
-    RET=$?
-      if [ $RET -eq 0 ]; then # yes
-	update-rc.d lightdm enable 2 
-	BOOTNAME=$(ls --ignore=lost+found /home)  &&
-	sed /etc/lightdm/lightdm.conf -i -e "s/#autologin-user=/autologin-user=$BOOTNAME/" &&
-	ASK_TO_REBOOT=1
-      elif [ $RET -eq 1 ]; then # no
-	update-rc.d lightdm disable 2
-	ASK_TO_REBOOT=1
-      else # user hit escape
-	return 1
-	fi
+whiptail --yesno "Should we boot straight to desktop? (recommended) " 20 60 2
+RET=$?
+if [ $RET -eq 0 ]; then # yes
+  whiptail --yesno "Would you like to auto-login?" 20 60 2 
+  AUTOL=$?
+  if [ $AUTOL -eq 0 ]; then
+    if [ `cat /tmp/newusers | wc -l` -gt 1 ]; then
+      read -p "Which user to autologin? " AUTOUSER 
+    else
+      AUTOUSER=`cat /tmp/newusers`  
+    fi
+    update-rc.d lightdm enable
+    sed /etc/lightdm/lightdm.conf -i -e "s/#autologin-user=/autologin-user=$AUTOUSER/" 
+    ASK_TO_REBOOT=1
+  elif [ $AUTOL -eq 1 ]; then
+    update-rc.d lightdm enable
+    ASK_TO_REBOOT=1
   else
-    whiptail --msgbox "Do sudo apt-get install lightdm to allow configuration of boot to desktop" 20 60 2
-    return 1
-  fi 
+    return $AUTOL
+  fi
+elif [ $RET -eq 1 ]; then # no
+  update-rc.d lightdm disable
+  ASK_TO_REBOOT=1
+else # user hit escape
+   return 1
+fi
 }
 
 
@@ -438,6 +459,8 @@ set_camera() {
   fi
 }
 
+
+
 do_camera() {
   if [ ! -e /boot/start_x.elf ]; then
     whiptail --msgbox "Your firmware appears to be out of date (no start_x.elf). Please update" 20 60 2
@@ -453,8 +476,6 @@ do_camera() {
     return 1
   fi
 }
-
-
 
 
 
@@ -533,7 +554,6 @@ while true; do
     "configure_keyboard" "Set keyboard layout" \
     "set_root_pass" "Set an administrative password " \
     "create_user" "Create a new user account" \
-    "set_pass" "Create a password for the new user" \
     "change_hostname" "Change your computer's hostname" \
     "change_locale" "Set locale" \
     "change_timezone" "Set timezone" \

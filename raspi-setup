@@ -488,8 +488,7 @@ do_finish() {
     telinit q
   fi
   if [ -e /usr/bin/systemd-analyze ]; then
-  sed -i /etc/systemd/system/getty.target.wants/getty@tty1.service -e 's#ExecStart=-/sbin/agetty -i -a root %I 38400#ExecStart=-/sbin/agetty %I 38400
-#'
+  sed -i /etc/systemd/system/getty.target.wants/getty@tty1.service -e 's#ExecStart=-/sbin/agetty -i -a root %I 38400#ExecStart=-/sbin/agetty %I 38400#'
   fi
   if [ $ASK_TO_REBOOT -eq 1 ]; then
     whiptail --yesno "Would you like to reboot now?" 20 60 2

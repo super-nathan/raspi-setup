@@ -1,7 +1,10 @@
 #!/bin/bash
+# THIS IS THE FIRST RUN SCRIPT FOR PIBANG LINUX. OUR GOAL IS TO 
+# BE SIMPLE AND EASY TO USE, WHILE OFFERING AS MUCH CUSTOMIZABILITY AS
+# POSSIBLE.
 
 
-
+# here are some base variables
 ASK_TO_REBOOT=0
 INTERACTIVE=True
 
@@ -16,6 +19,10 @@ your first boot, you MUST set a root password, crete a user,
 and set a password for your new user.\
 " 20 70 1
 }
+
+
+# TODO: this is written for sysv-init. Becasue of the compatability for systemd it 
+# still works fine, but is hacky-er than a pure systemd solution.
 
 do_expand_rootfs() {
   # Get the starting offset of the root partition
@@ -72,6 +79,10 @@ EOF
 The filesystem will be enlarged upon the next reboot" 20 60 2
 }
 
+
+
+
+# don't fuck with this!
 set_config_var() {
   lua - "$1" "$2" "$3" <<EOF > "$3.bak"
 local key=assert(arg[1])
@@ -94,6 +105,7 @@ EOF
 mv "$3.bak" "$3"
 }
 
+# don't fuck with this!
 get_config_var() {
   lua - "$1" "$2" <<EOF
 local key=assert(arg[1])
@@ -141,6 +153,7 @@ do_overscan() {
   fi
 }
 
+
 do_set_root_pass() {
   whiptail --msgbox "\
   You will now be asked to enter a new ROOT password. The ROOT user is the all seeing allmighty \"Oz\" of your system. This is an adminstrative account, and is to only be used for administrative duties. NEW, you can now make as many users as you like.\
@@ -152,7 +165,7 @@ do_set_root_pass() {
 
 
 do_create_user() {
-  /usr/bin/ls -1 --ignore=lost+found  /home >> /tmp/newusers
+  /bin/ls -1 --ignore=lost+found  /home >> /tmp/newusers
   whiptail --msgbox "\
   WARNING, Right now, your sytem only has a root account. You need to create a user. This new user is what you will use to log in 99.9% of the time. What would you like your new user's name to be? If you have questions please consult the forums at www.pibanglinux.org\
   " 20 70 1
@@ -186,13 +199,13 @@ $NEWNAME ALL=(ALL) NOPASSWD: ALL
 
 
 do_change_hostname() {
-  OLDHOST=$(cat /etc/hostname) &&
+  OLDHOST=$(cat /etc/hostname) 
   whiptail --msgbox "\
   The Hostname is your computer's name on the network. Right now it is set to "$OLDHOST"\
   " 20 60 1
-  read -p "Enter a new hostname: " HOSTNAME && 
-  sed /etc/hostname -i -e "s/$OLDHOST/$HOSTNAME/" &&
-  sed /etc/hosts -i -e "s/$OLDHOST/$HOSTNAME/" 
+  read -p "Enter a new hostname: " NEWHOSTNAME 
+  sed /etc/hostname -i -e "s/$OLDHOST/$NEWHOSTNAME/" 
+  sed /etc/hosts -i -e "s/$OLDHOST/$NEWHOSTNAME/" 
 }
 
 
@@ -221,56 +234,22 @@ do_change_timezone() {
 
 
 do_memory_split() {
-  if [ -e /boot/start_cd.elf ]; then
-    # New-style memory split setting
-    if ! mountpoint -q /boot; then
-      return 1
-    fi
-    ## get current memory split from /boot/config.txt
-    CUR_GPU_MEM=$(get_config_var gpu_mem /boot/config.txt)
-    [ -z "$CUR_GPU_MEM" ] && CUR_GPU_MEM=64
-    ## ask users what gpu_mem they want
-    NEW_GPU_MEM=$(whiptail --inputbox "How much memory should the GPU have?  e.g. 16/32/64/128/256" \
-      20 70 -- "$CUR_GPU_MEM" 3>&1 1>&2 2>&3)
-    if [ $? -eq 0 ]; then
-      set_config_var gpu_mem "$NEW_GPU_MEM" /boot/config.txt
-      ASK_TO_REBOOT=1
-    fi
-  else # Old firmware so do start.elf renaming
-    get_current_memory_split
-    MEMSPLIT=$(whiptail --menu "Set memory split.\n$MEMSPLIT_DESCRIPTION" 20 60 10 \
-      "240" "240MiB for ARM, 16MiB for VideoCore" \
-      "224" "224MiB for ARM, 32MiB for VideoCore" \
-      "192" "192MiB for ARM, 64MiB for VideoCore" \
-      "128" "128MiB for ARM, 128MiB for VideoCore" \
-      3>&1 1>&2 2>&3)
-    if [ $? -eq 0 ]; then
-      set_memory_split ${MEMSPLIT}
-      ASK_TO_REBOOT=1
-    fi
-  fi
+# New-style memory split setting
+if ! mountpoint -q /boot; then
+  return 1
+fi
+## get current memory split from /boot/config.txt
+CUR_GPU_MEM=$(get_config_var gpu_mem /boot/config.txt)
+[ -z "$CUR_GPU_MEM" ] && CUR_GPU_MEM=64
+## ask users what gpu_mem they want
+NEW_GPU_MEM=$(whiptail --inputbox "How much memory should the GPU have?  e.g. 16/32/64/128/256" \
+  20 70 -- "$CUR_GPU_MEM" 3>&1 1>&2 2>&3)
+if [ $? -eq 0 ]; then
+  set_config_var gpu_mem "$NEW_GPU_MEM" /boot/config.txt
+  ASK_TO_REBOOT=1
+fi
 }
 
-get_current_memory_split() {
-  # Stop if /boot is not a mountpoint
-  if ! mountpoint -q /boot; then
-    return 1
-  fi
-  AVAILABLE_SPLITS="128 192 224 240"
-  MEMSPLIT_DESCRIPTION=""
-  for SPLIT in $AVAILABLE_SPLITS;do
-    if [ -e /boot/arm${SPLIT}_start.elf ] && cmp /boot/arm${SPLIT}_start.elf /boot/start.elf >/dev/null 2>&1;then
-      CURRENT_MEMSPLIT=$SPLIT
-      MEMSPLIT_DESCRIPTION="Current: ${CURRENT_MEMSPLIT}MiB for ARM, $((256 - $CURRENT_MEMSPLIT))MiB for VideoCore"
-      break
-    fi
-  done
-}
-
-set_memory_split() {
-  cp -a /boot/arm${1}_start.elf /boot/start.elf
-  sync
-}
 
 do_overclock() {
   whiptail --msgbox "\
@@ -387,6 +366,7 @@ registration.\
   read TMP
 }
 
+
 do_ssh() {
   if [ -e /var/log/regen_ssh_keys.log ] && ! grep -q "^finished" /var/log/regen_ssh_keys.log; then
     whiptail --msgbox "Initial ssh key generation still running. Please wait and try again." 20 60 2
@@ -420,7 +400,7 @@ if [ $RET -eq 0 ]; then # yes
       AUTOUSER=`cat /tmp/newusers`  
     fi
     update-rc.d lightdm enable
-    sed /etc/lightdm/lightdm.conf -i -e "s/#autologin-user=/autologin-user=$AUTOUSER/" 
+    sed /etc/lightdm/lightdm.conf -i -e "s/#autologin-user=/autologin-user=${AUTOUSER}/" 
     ASK_TO_REBOOT=1
   elif [ $AUTOL -eq 1 ]; then
     update-rc.d lightdm enable
@@ -501,34 +481,6 @@ do_finish() {
 }
 
 
-#
-# Command line options for non-interactive use
-#
-for i in $*
-do
-  case $i in
-  --memory-split)
-    OPT_MEMORY_SPLIT=GET
-    printf "Not currently supported\n"
-    exit 1
-    ;;
-  --memory-split=*)
-    OPT_MEMORY_SPLIT=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
-    printf "Not currently supported\n"
-    exit 1
-    ;;
-  *)
-    # unknown option
-    ;;
-  esac
-done
-
-#if [ "GET" = "${OPT_MEMORY_SPLIT:-}" ]; then
-#  set -u # Fail on unset variables
-#  get_current_memory_split
-#  echo $CURRENT_MEMSPLIT
-#  exit 0
-#fi
 
 # Everything else needs to be run as root
 if [ $(id -u) -ne 0 ]; then
@@ -536,39 +488,69 @@ if [ $(id -u) -ne 0 ]; then
   exit 1
 fi
 
-if [ -n "${OPT_MEMORY_SPLIT:-}" ]; then
-  set -e # Fail when a command errors
-  set_memory_split "${OPT_MEMORY_SPLIT}"
-  exit 0
-fi
 
-#
-# Interactive use loop
-#
-while true; do
-  FUN=$(whiptail --menu "Raspi-Setup for PiBang Linux" 24 80 16 --cancel-button Finish --ok-button Select \
-    "info" "About this utility." \
-    "expand_rootfs" "Expand root partition to fill SD card" \
-    "overscan" "Change overscan (RCA-out video only)" \
-    "configure_keyboard" "Set keyboard layout" \
-    "set_root_pass" "Set an administrative password " \
-    "create_user" "Create a new user account" \
-    "change_hostname" "Change your computer's hostname" \
-    "change_locale" "Set locale" \
-    "change_timezone" "Set timezone" \
-    "memory_split" "Change memory split" \
-    "overclock" "Configure overclocking" \
-    "camera" "Enable/Disable camera addon support" \
-    "rastrack" "Add this Pi to the Raspberry Pi Map - Rastrack" \
-    "ssh" "Enable or disable ssh server" \
-    "boot_behaviour" "Start desktop on boot?" \
-    3>&1 1>&2 2>&3)
-  RET=$?
-  if [ $RET -eq 1 ]; then
-    do_finish
-  elif [ $RET -eq 0 ]; then
-    "do_$FUN" || whiptail --msgbox "There was an error running do_$FUN" 20 60 1
-  else
-    exit 1
-  fi
-done
+
+
+if [ -e /usr/bin/lightdm ]; then 
+
+  #
+  # Interactive use loop
+  #
+  while true; do
+    FUN=$(whiptail --menu "Raspi-Setup for PiBang Linux" 24 80 16 --cancel-button Finish --ok-button Select \
+      "info" "About this utility." \
+      "expand_rootfs" "Expand root partition to fill SD card" \
+      "overscan" "Change overscan (RCA-out video only)" \
+      "configure_keyboard" "Set keyboard layout" \
+      "set_root_pass" "Set an administrative password " \
+      "create_user" "Create a new user account" \
+      "change_hostname" "Change your computer's hostname" \
+      "change_locale" "Set locale" \
+      "change_timezone" "Set timezone" \
+      "memory_split" "Change memory split" \
+      "overclock" "Configure overclocking" \
+      "camera" "Enable/Disable camera addon support" \
+      "rastrack" "Add this Pi to the Raspberry Pi Map - Rastrack" \
+      "ssh" "Enable or disable ssh server" \
+      "boot_behaviour" "Start desktop on boot?" \
+      3>&1 1>&2 2>&3)
+    RET=$?
+    if [ $RET -eq 1 ]; then
+      do_finish
+    elif [ $RET -eq 0 ]; then
+      "do_$FUN" || whiptail --msgbox "There was an error running do_$FUN" 20 60 1
+    else
+      exit 1
+    fi
+  done
+else 
+  #
+  # Interactive use loop
+  #
+  while true; do
+    FUN=$(whiptail --menu "Server-Setup for PiBang Linux" 23 80 14 --cancel-button Finish --ok-button Select \
+      "info" "NO JOKE, read this." \
+      "expand_rootfs" "Expand root partition to fill SD card" \
+      "overscan" "Change overscan" \
+      "configure_keyboard" "Set keyboard layout" \
+      "set_root_pass" "Change password for user" \
+      "create_user" "Create a new user account" \
+      "change_hostname" "Change your computer's hostname" \
+      "change_locale" "Set locale" \
+      "change_timezone" "Set timezone" \
+      "memory_split" "Change memory split" \
+      "overclock" "Configure overclocking" \
+      "camera" "Enable/Disable camera addon support" \
+      "rastrack" "Add this Pi to the Raspberry Pi Map - Rastrack" \
+      "ssh" "Enable or disable ssh server" \
+      3>&1 1>&2 2>&3)
+    RET=$?
+    if [ $RET -eq 1 ]; then
+      do_finish
+    elif [ $RET -eq 0 ]; then
+      "do_$FUN" || whiptail --msgbox "There was an error running do_$FUN" 20 60 1
+    else
+      exit 1
+    fi
+  done
+fi
